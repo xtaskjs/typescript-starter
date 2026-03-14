@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero-card">
+        <p class="eyebrow">TypeScript starter</p>
+        <h1>{{title}}</h1>
+        <p class="lead">{{subtitle}}</p>
+        <dl class="meta-grid">
+          <div>
+            <dt>Upstream</dt>
+            <dd><a href="{{repository}}">{{repository}}</a></dd>
+          </div>
+          <div>
+            <dt>Runtime</dt>
+            <dd>{{runtime}}</dd>
+          </div>
+        </dl>
+        <div class="actions">
+          <button id="ping" type="button">Check /health</button>
+          <a class="ghost-link" href="{{repository}}">Open xTaskJS repo</a>
+        </div>
+        <pre id="out" aria-live="polite"></pre>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

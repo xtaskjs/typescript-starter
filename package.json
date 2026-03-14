@@ -1,0 +1,48 @@
+{
+  "name": "typescript-starter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TypeScript starter project for xTaskJS with Express, unit tests, and integration tests.",
+  "main": "dist/main.js",
+  "scripts": {
+    "prepare:xtask": "npm install --prefix vendor/xtask && npm run build --prefix vendor/xtask/packages/common && npm run build --prefix vendor/xtask/packages/core && npm run build --prefix vendor/xtask/packages/express-http && rm -rf vendor/packs && mkdir -p vendor/packs && npm pack ./vendor/xtask/packages/common --pack-destination ./vendor/packs && npm pack ./vendor/xtask/packages/core --pack-destination ./vendor/packs && npm pack ./vendor/xtask/packages/express-http --pack-destination ./vendor/packs",
+    "start": "node -r ts-node/register main.ts",
+    "dev": "nodemon --watch main.ts --watch src --ext ts,html,js,css --exec \"node -r ts-node/register main.ts\"",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist",
+    "copy:assets": "cpy \"views/**/*\" dist/views && cpy \"public/**/*\" dist/public",
+    "build": "npm run clean && tsc -p tsconfig.build.json && npm run copy:assets",
+    "start:prod": "npm run build && node scripts/start-prod.cjs",
+    "test": "node -r ts-node/register --test tests/**/*.test.ts",
+    "test:unit": "node -r ts-node/register --test tests/unit/**/*.test.ts",
+    "test:integration": "node -r ts-node/register --test tests/integration/**/*.test.ts"
+  },
+  "keywords": [
+    "typescript",
+    "xtaskjs",
+    "express"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@xtaskjs/common": "^1.0.14",
+    "@xtaskjs/core": "^1.0.14",
+    "@xtaskjs/express-http": "^1.0.12",
+    "express": "^5.1.0",
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.13.14",
+    "@types/supertest": "^6.0.3",
+    "cpy-cli": "^5.0.0",
+    "nodemon": "^3.1.10",
+    "rimraf": "^6.0.1",
+    "supertest": "^7.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

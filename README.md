@@ -1,168 +1,117 @@
 # typescript-starter
 
-TypeScript starter project for xTaskJS using the Express adapter from the upstream repository:
+Starter en TypeScript para xTaskJS con adapter de Express.
+
+Repositorio base de referencia:
 https://github.com/xtaskjs/xtask
 
-This starter gives you:
+## Incluye
 
-- TypeScript source layout under `src/`
-- xTaskJS controllers and dependency injection
-- Express-backed HTTP runtime via `@xtaskjs/express-http`
-- Static assets under `public/` and file-based views under `views/`
-- Unit and integration tests
-- A vendored copy of the upstream xTaskJS repository under `vendor/xtask`
-- A production build that emits `dist/` and can be launched from there
+- Estructura TypeScript bajo `src/`
+- Controladores y servicios con DI de xTaskJS
+- Runtime HTTP con `@xtaskjs/express-http`
+- Vistas en `views/` y assets estáticos en `public/`
+- Tests unitarios e integración
+- Build de producción a `dist/`
 
-## Upstream dependency strategy
+## Dependencias xTaskJS actualizadas
 
-The published npm packages currently do not expose a usable consumer build for this starter. To keep the project runnable, this repository vendors the upstream source under `vendor/xtask` and installs `@xtaskjs/common`, `@xtaskjs/core`, and `@xtaskjs/express-http` from local tarballs generated from that vendored source.
+- `@xtaskjs/common` `^1.0.30`
+- `@xtaskjs/core` `^1.0.30`
+- `@xtaskjs/express-http` `^1.0.27`
 
-Those tarballs live in `vendor/packs/` and are used directly by `npm install`.
-
-If you want to refresh the starter against a newer upstream checkout, run:
-
-```bash
-npm run prepare:xtask
-```
-
-## Why the source runtime uses `ts-node`
-
-xTaskJS currently autoloads application classes by scanning the project `src/` directory at runtime and relies on decorator metadata for dependency injection. Because of that, the local development and test entrypoints use `ts-node`, which preserves the emitted decorator metadata needed by xTaskJS while still running directly from TypeScript source.
-
-For production-style execution, the build outputs compiled code into `dist/`, copies `views/` and `public/`, and then starts the app with the working directory set to `dist/` so xTaskJS scans `dist/src` instead of the original TypeScript sources.
-
-## Project structure
-
-```text
-.
-├── vendor/
-├── public/
-├── scripts/
-├── src/
-├── tests/
-│   ├── integration/
-│   └── unit/
-├── views/
-├── package.json
-├── tsconfig.build.json
-└── tsconfig.json
-```
-
-## Main files
-
-- `src/app.ts`: creates the Express app and xTaskJS application instance
-- `main.ts`: startup entrypoint used by `npm start`
-- `src/home.controller.ts`: HTML page rendered through xTaskJS `view(...)`
-- `src/health.controller.ts`: JSON health endpoint
-- `src/greeting.service.ts`: DI-managed service used by the controllers
-- `tests/unit/greeting.service.test.ts`: unit test example
-- `tests/integration/app.integration.test.ts`: integration tests against the Express app
-
-## Install
+## Instalación
 
 ```bash
 npm install
 ```
 
-That install also prepares the vendored xTaskJS packages automatically.
-
-## Run locally
-
-Start the app directly from TypeScript source:
+## Ejecutar
 
 ```bash
 npm start
 ```
 
-Development mode with file watching:
-
-```bash
-npm run dev
-```
-
-Default URL:
+URL por defecto:
 
 ```text
 http://127.0.0.1:3000
 ```
 
-Available routes:
+## Arranque paralelo (nuevo)
 
-- `GET /`
-- `GET /health`
+xTaskJS puede escanear autoload candidates en paralelo usando workers.
 
-You can override the bind address with environment variables:
+```bash
+npm run start:parallel
+```
+
+Para depuración en modo single-worker:
+
+```bash
+npm run start:single-worker
+```
+
+Para ejecutar build + arranque de produccion con workers automaticos:
+
+```bash
+npm run start:prod:parallel
+```
+
+## Configuración de arranque (nueva)
+
+El starter ahora aplica el patrón moderno de bootstrap visto en los samples de `xtaskjs/xtask`:
+
+- `container.resolutionStrategy` (`XTASK_DI_STRATEGY=eager|lazy`)
+- `container.metricsEnabled` (`XTASK_DI_METRICS=false` para desactivar)
+- `hotManifestWatcher.enabled` en `development`
+- `hotManifestWatcher.debounceMs` (`XTASK_HOT_DEBOUNCE_MS`, default `60`)
+- `prebuiltManifest.enabled` en `production`
+
+El manifiesto generado por xTaskJS (`.xtask-manifest.json`) queda ignorado en git.
+
+## Variables útiles
 
 ```bash
 HOST=0.0.0.0 PORT=4000 npm start
+XTASK_DI_STRATEGY=eager npm start
+XTASK_DI_METRICS=false npm start
+XTASK_HOT_DEBOUNCE_MS=120 npm start
+XTASK_SCAN_WORKERS=1 npm start
 ```
 
-## Tests
+## Scripts
 
-Run everything:
+- `npm start`: arranque normal
+- `npm run start:parallel`: arranque con workers automáticos
+- `npm run start:single-worker`: arranque forzando 1 worker
+- `npm run start:prod:parallel`: build + arranque de producción con workers automáticos
+- `npm run dev`: modo watch con nodemon
+- `npm run typecheck`: chequeo de tipos
+- `npm run clean:dev`: borra `dist/` y `.xtask-manifest.json` para reset rápido de desarrollo
+- `npm test`: todos los tests
+- `npm run test:unit`: solo unit tests
+- `npm run test:integration`: solo integration tests
+- `npm run build`: build a `dist/` + copia de assets
+- `npm run start:prod`: build y arranque desde `dist/`
+
+## Troubleshooting del manifiesto
+
+Si notas que no detecta nuevos controladores/servicios o cambios de decoradores:
+
+1. Deten la app.
+2. Elimina el manifiesto cacheado.
+3. Arranca de nuevo.
 
 ```bash
-npm test
+rm -f .xtask-manifest.json
+npm start
 ```
 
-Run only unit tests:
+En desarrollo, `hotManifestWatcher` ya esta habilitado automaticamente, pero borrar el manifiesto sigue siendo util cuando hubo cambios estructurales grandes.
+
+Reset rápido recomendado:
 
 ```bash
-npm run test:unit
+npm run clean:dev && npm start
 ```
-
-Run only integration tests:
-
-```bash
-npm run test:integration
-```
-
-The test runner uses Node's built-in test framework together with `ts-node`, which keeps the test runtime compatible with xTaskJS autoloading of TypeScript files from `src/` and preserves dependency injection metadata.
-
-## Type checking
-
-```bash
-npm run typecheck
-```
-
-## Production build
-
-Build the application:
-
-```bash
-npm run build
-```
-
-Launch the compiled output:
-
-```bash
-npm run start:prod
-```
-
-That command:
-
-1. compiles TypeScript into `dist/`
-2. copies `views/` and `public/` into `dist/`
-3. starts the compiled app with `dist/` as the working directory so xTaskJS scans `dist/src` while using `dist/main.js` as the process entrypoint
-
-## How xTaskJS is wired here
-
-The starter depends on package directories sourced from the vendored upstream xTaskJS repository:
-
-- `@xtaskjs/core`
-- `@xtaskjs/common`
-- `@xtaskjs/express-http`
-
-The application factory in `src/app.ts` does three things:
-
-1. creates an Express instance
-2. wraps it with `new ExpressAdapter(expressApp)`
-3. passes that adapter into `CreateApplication(...)`
-
-Controllers are discovered automatically because xTaskJS scans the active `src/` directory and loads decorated classes.
-
-## Next changes you can make
-
-- Add more controllers and services under `src/`
-- Add persistence with `@xtaskjs/typeorm`
-- Add authentication later with `@xtaskjs/security`

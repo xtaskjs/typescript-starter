@@ -20,9 +20,11 @@ export async function createStarterApplication(
   options: CreateStarterAppOptions = {},
 ): Promise<StarterApplication> {
   const expressApp = express();
-  expressApp.use(express.json());
 
   const application = await CreateApplication({
+    container: appConfig.container,
+    hotManifestWatcher: appConfig.hotManifestWatcher,
+    prebuiltManifest: appConfig.prebuiltManifest,
     adapter: new ExpressAdapter(expressApp, options.adapterOptions),
     autoListen: options.autoListen ?? false,
     server: {

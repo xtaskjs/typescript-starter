@@ -3,22 +3,28 @@
   "version": "0.1.0",
   "private": true,
   "description": "TypeScript starter project for xTaskJS with Express, unit tests, and integration tests.",
+  "packageManager": "pnpm@10.0.0",
   "main": "dist/main.js",
   "scripts": {
     "start": "node -r ts-node/register main.ts",
-    "start:parallel": "XTASK_SCAN_WORKERS=auto npm start",
-    "start:single-worker": "XTASK_SCAN_WORKERS=1 npm start",
-    "start:prod:parallel": "XTASK_SCAN_WORKERS=auto npm run start:prod",
+    "start:parallel": "XTASK_SCAN_WORKERS=auto pnpm start",
+    "start:single-worker": "XTASK_SCAN_WORKERS=1 pnpm start",
+    "start:prod:parallel": "XTASK_SCAN_WORKERS=auto pnpm run start:prod",
     "dev": "nodemon --watch main.ts --watch src --ext ts,html,js,css --exec \"node -r ts-node/register main.ts\"",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "turbo run typecheck:app",
+    "typecheck:app": "tsc --noEmit",
     "clean": "rimraf dist",
     "clean:dev": "rimraf dist .xtask-manifest.json",
     "copy:assets": "cpy \"views/**/*\" dist/views && cpy \"public/**/*\" dist/public",
-    "build": "npm run clean && tsc -p tsconfig.build.json && npm run copy:assets",
-    "start:prod": "npm run build && node scripts/start-prod.cjs",
-    "test": "node -r ts-node/register --test tests/**/*.test.ts",
+    "build": "turbo run build:app",
+    "build:app": "pnpm run clean && tsc -p tsconfig.build.json && pnpm run copy:assets",
+    "start:prod": "pnpm run build && node scripts/start-prod.cjs",
+    "test": "turbo run test:app",
+    "test:app": "node -r ts-node/register --test tests/**/*.test.ts",
     "test:unit": "node -r ts-node/register --test tests/unit/**/*.test.ts",
-    "test:integration": "node -r ts-node/register --test tests/integration/**/*.test.ts"
+    "test:integration": "node -r ts-node/register --test tests/integration/**/*.test.ts",
+    "turbo:test": "turbo run test:app",
+    "turbo:build": "turbo run build:app"
   },
   "keywords": [
     "typescript",
@@ -28,9 +34,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xtaskjs/common": "^1.0.30",
-    "@xtaskjs/core": "^1.0.30",
-    "@xtaskjs/express-http": "^1.0.27",
+    "@xtaskjs/common": "^1.0.47",
+    "@xtaskjs/core": "^1.0.47",
+    "@xtaskjs/express-http": "^1.0.44",
     "express": "^5.1.0",
     "reflect-metadata": "^0.2.2"
   },
@@ -43,7 +49,8 @@
     "rimraf": "^6.0.1",
     "supertest": "^7.1.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.2"
+    "turbo": "^2.9.16",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=20"
